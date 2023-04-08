@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FavoriteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +19,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+//put in middleware
+Route::post('/like-photo', [FavoriteController::class, 'like_photo']);
+Route::post('/remove-like-photo', [FavoriteController::class, 'remove_like_photo']);
+Route::get('/get-like-photos', [FavoriteController::class, 'get_liked_photos']);
+//
+
+
+
+Route::get('/email', [AuthController::class, 'register_by_email']);
