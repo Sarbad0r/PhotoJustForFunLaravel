@@ -16,8 +16,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
 });
 
 //put in middleware
@@ -28,4 +27,4 @@ Route::get('/get-like-photos', [FavoriteController::class, 'get_liked_photos']);
 
 
 
-Route::get('/email', [AuthController::class, 'register_by_email']);
+Route::get('/email', [AuthController::class, 'log_and_register_by_email']);
