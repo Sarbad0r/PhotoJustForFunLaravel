@@ -22,4 +22,47 @@ class AuthController extends Controller
 
         $user->notify(new UserPhoneNot($user));
     }
+
+
+    public function login(Request $request)
+    {
+        //first check the email
+        $user = User::where('email', $request['email'])->first();
+
+        if (!$user) {
+            return response([
+                'success' => false,
+                'message' => "User not exists"
+            ]);
+        }
+
+        if (!Hash::check($request['password'], $user['password'])) {
+            return response([
+                'success' => false,
+                'message' => "Enter correct password"
+            ]);
+        }
+
+        return response([
+            'success' => true,
+            'token' => $user->createToken('login')->plainTextToken,
+            'user' => $user
+        ]);
+    }
+
+    public function check_token(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            return response([
+                'success' => true,
+                'user' => $user
+            ]);
+        } else {
+            return response([
+                'success' => false,
+                'user' => $user
+            ]);
+        }
+    }
 }

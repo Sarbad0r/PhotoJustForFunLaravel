@@ -17,13 +17,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->group(function () {
+    //
+    Route::post('/like-photo', [FavoriteController::class, 'like_photo']);
+    Route::post('/remove-like-photo', [FavoriteController::class, 'remove_like_photo']);
+    Route::get('/get-like-photos', [FavoriteController::class, 'get_liked_photos']);
+    //
+    Route::get('/check/token', [AuthController::class, 'check_token']);
 });
 
-//put in middleware
-Route::post('/like-photo', [FavoriteController::class, 'like_photo']);
-Route::post('/remove-like-photo', [FavoriteController::class, 'remove_like_photo']);
-Route::get('/get-like-photos', [FavoriteController::class, 'get_liked_photos']);
-//
+Route::post('/login', [AuthController::class, 'login']);
 
 
 
