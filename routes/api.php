@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-like-photos', [FavoriteController::class, 'get_liked_photos']);
     //
     Route::get('/check/token', [AuthController::class, 'check_token']);
+    Route::post('/update/profile', [AuthController::class, 'update_profile']);
 });
 
 Route::post('/login', [AuthController::class, 'login']);
