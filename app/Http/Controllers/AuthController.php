@@ -70,39 +70,98 @@ class AuthController extends Controller
 
     public function update_profile(Request $request)
     {
-        return $request;
-        $user = $request->user();
-        if ($user) {
-            $user_fields = json_decode($request['user_fields']);
-            $imageName = null;
-            if ($request->file($user->id)) {
-                $image = $request->file("{$request['user_id']}");
 
+        //check the user
+        $user = $request->user();
+        //if user exists
+        if ($user) {
+            //get fieds decoding becouse getting field will be string type
+            $user_fields = json_decode($request['user_fields']);
+
+            $imageName = null;
+            //check if getting request have a file with key 
+            if ($request->file("{$user->id}")) {
+                //if its true get this file
+                $image = $request->file("{$user->id}");
+                //get image and rename image name
                 $imageName = $user->id . "_" . time() . '.' . $image->extension();
 
+                //check the storage file if there user have any image delete them
                 if (File::exists(storage_path("app/user_images/" . $user['image_url']))) {
                     File::delete(storage_path("app/user_images/" . $user->image_url));
                 }
 
+                //resize the image with laravel image intervention package
                 $img512 = Image::make($image->path());
                 $img512->resize(512, 512, function ($constraint) {
                     $constraint->aspectRatio();
                 });
+                //then save in storage path
                 $img512->save(storage_path("app/user_images/" . 'picture_' . $imageName));
             }
 
+            //if imagename null check the user, maybe user image field is not empty
+            if ($imageName == null) {
+                $imageName = $user->image_url == null ? null : $user->image_url;
+            }
+
+            //if image exists and image name does not contain the "picture_"
+            if ($imageName && (str_contains($imageName, "picture_") == false)) {
+                //change the image name
+                $imageName = "picture_$imageName";
+            }
+
+
             User::where('id', $user['id'])->update([
                 'name' => $user_fields->name,
-                //last_name,
-                //job_name,
-                //company
-                'image_url' => $imageName == null ? null : "picture_$imageName"
+                'last_name' => $user_fields->last_name,
+                "job_name" => $user_fields->prof,
+                "company" => $user_fields->company,
+                'image_url' => $imageName == null ? null : $imageName
             ]);
 
-            $updated_user = $request->user();
-            return response(['success' => true, 'message' => "", 'user' => $updated_user]);
+            //get updated user
+            $updated_user = User::where("id", $request->user()->id)->first();
+
+            return response(['success' => true, 'message' => "User successfully updated", 'user' => $updated_user]);
         } else {
-            return response(['success' => false, 'message' => ""]);
+            return response(['success' => false, 'message' => "User not found"]);
+        }
+    }
+
+    public function get_user_image($id)
+    {
+        //check the user with sending id
+        $user = User::where("id", $id)->first();
+        //if user exists
+        if ($user) {
+            //check user image field
+            if ($user['image_url']) {
+                //if the user image field contains http or https
+                if (str_contains($user['image_url'], 'https://')) {
+                    //we will redirect to this url
+                    return redirect($user['image_url']);
+                } else {
+                    //else check the image from storage path
+                    if (File::exists(storage_path("app/user_images/" . $user['image_url']))) {
+                        //if image exists return this image as url
+                        return response()->file(storage_path("app/user_images/" . $user['image_url']));
+                    }
+                    //or return emtpy string
+                    return '';
+                }
+            } else {
+                //if user does not have image url return empty string
+                return response([
+                    'image' => ''
+                ]);
+                //https://lh3.googleusercontent.com/a/AGNmyxae2kasrGxu44SfgkOBdGJI5cAwnOvUDJ4qllcBZg=s96-c
+            }
+        } else {
+            //if user does not exist return empty string
+            return response([
+                'image' => ''
+            ]);
         }
     }
 }

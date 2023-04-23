@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::post('/login', [AuthController::class, 'login']);
-
+Route::get('/get/user/image/{id}', [AuthController::class, 'get_user_image']);
 
 
 Route::get('/email', [AuthController::class, 'log_and_register_by_email']);
